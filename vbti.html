@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VBTI - 排球人性格测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #ffcc00 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .volleyball-bg {
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 150px;
+            height: 150px;
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        h1 {
+            color: #ff6b35;
+            font-size: 2.5em;
+            text-align: center;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .start-screen, .question-screen, .result-screen {
+            display: none;
+        }
+
+        .start-screen.active, .question-screen.active, .result-screen.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border-radius: 50px;
+            cursor: pointer;
+            display: block;
+            margin: 30px auto 0;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #eee;
+            border-radius: 4px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b35, #ffcc00);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+
+        .question-number {
+            color: #ff6b35;
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+
+        .question-text {
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 25px;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            padding: 15px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.05em;
+            color: #495057;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option:hover {
+            border-color: #ff6b35;
+            background: #fff5f0;
+            transform: translateX(5px);
+        }
+
+        .option.selected {
+            border-color: #ff6b35;
+            background: #ff6b35;
+            color: white;
+        }
+
+        .result-card {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .result-type {
+            font-size: 3em;
+            color: #ff6b35;
+            font-weight: bold;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .result-name {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .result-desc {
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            font-size: 1.05em;
+        }
+
+        .traits {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .trait {
+            background: #fff5f0;
+            color: #ff6b35;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            border: 1px solid #ffd0b5;
+        }
+
+        .court-position {
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin: 20px 0;
+            font-size: 1.1em;
+        }
+
+        .share-btn {
+            background: #333;
+            margin-top: 15px;
+        }
+
+        .emoji {
+            font-size: 4em;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .volleyball-court {
+            width: 100%;
+            height: 200px;
+            background: #f0f0f0;
+            border-radius: 12px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+            border: 3px solid #ff6b35;
+        }
+
+        .court-line {
+            position: absolute;
+            background: #ff6b35;
+        }
+
+        .court-center {
+            width: 2px;
+            height: 100%;
+            left: 50%;
+            top: 0;
+        }
+
+        .court-net {
+            width: 100%;
+            height: 3px;
+            top: 50%;
+            background: repeating-linear-gradient(90deg, #333 0px, #333 10px, transparent 10px, transparent 20px);
+        }
+
+        .player-dot {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: #ff6b35;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            transition: all 0.5s;
+        }
+
+        .fade-out {
+            animation: fadeOut 0.3s ease forwards;
+        }
+
+        @keyframes fadeOut {
+            to { opacity: 0; transform: translateY(-10px); }
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .stat-item {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        .stat-value {
+            font-size: 1.2em;
+            color: #ff6b35;
+            font-weight: bold;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 25px;
+            }
+            h1 {
+                font-size: 2em;
+            }
+            .result-type {
+                font-size: 2.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <svg class="volleyball-bg" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="45" fill="none" stroke="#ff6b35" stroke-width="2"/>
+            <path d="M50 5 Q20 50 50 95" fill="none" stroke="#ff6b35" stroke-width="2"/>
+            <path d="M50 5 Q80 50 50 95" fill="none" stroke="#ff6b35" stroke-width="2"/>
+            <line x1="5" y1="50" x2="95" y2="50" stroke="#ff6b35" stroke-width="2"/>
+        </svg>
+
+        <!-- 开始页面 -->
+        <div class="start-screen active">
+            <h1>🏐 VBTI</h1>
+            <p class="subtitle">排球人性格测试<br>Volleyball Personality Test</p>
+            <div style="text-align: center; margin: 30px 0; color: #666;">
+                <p style="margin-bottom: 15px;">12道题 · 4个维度 · 16种排球人格</p>
+                <p style="font-size: 0.9em;">发现你在球场上的真实身份</p>
+            </div>
+            <div class="volleyball-court">
+                <div class="court-line court-center"></div>
+                <div class="court-line court-net"></div>
+                <div class="player-dot" style="left: 20%; top: 20%;"></div>
+                <div class="player-dot" style="left: 35%; top: 35%;"></div>
+                <div class="player-dot" style="left: 15%; top: 60%;"></div>
+                <div class="player-dot" style="left: 80%; top: 25%;"></div>
+                <div class="player-dot" style="left: 65%; top: 40%;"></div>
+                <div class="player-dot" style="left: 85%; top: 65%;"></div>
+            </div>
+            <button class="btn" onclick="startTest()">开始测试</button>
+        </div>
+
+        <!-- 题目页面 -->
+        <div class="question-screen">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="question-number" id="questionNumber">问题 1/12</div>
+            <div class="question-text" id="questionText"></div>
+            <div class="options" id="optionsContainer"></div>
+        </div>
+
+        <!-- 结果页面 -->
+        <div class="result-screen">
+            <div class="result-card">
+                <span class="emoji" id="resultEmoji">🏐</span>
+                <div class="result-type" id="resultType">TYPE</div>
+                <div class="result-name" id="resultName">名称</div>
+                <div class="traits" id="traits"></div>
+                <div class="court-position" id="courtPosition">最佳位置</div>
+                <div class="stats" id="stats"></div>
+                <div class="result-desc" id="resultDesc"></div>
+                <button class="btn" onclick="restartTest()">再测一次</button>
+                <button class="btn share-btn" onclick="shareResult()">分享结果</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // VBTI 题目设计
+        // 维度：E/I (Energy) - 进攻欲望 vs 防守稳健
+        // S/N (Style) - 力量型 vs 技巧型  
+        // T/F (Tactic) - 个人英雄 vs 团队配合
+        // J/P (Judge) - 严格执行 vs 随机应变
+
+        const questions = [
+            {
+                text: "比赛关键时刻，比分24:24，你会：",
+                options: [
+                    { text: "主动要球，准备一锤定音", scores: { E: 2, T: 1 } },
+                    { text: "稳住节奏，等待最佳时机", scores: { I: 2, J: 1 } },
+                    { text: "观察对手站位，打空档", scores: { N: 2, F: 1 } },
+                    { text: "相信队友，组织战术配合", scores: { S: 1, F: 2 } }
+                ]
+            },
+            {
+                text: "你最喜欢的得分方式是：",
+                options: [
+                    { text: "暴力扣杀，钉地板", scores: { E: 2, S: 1 } },
+                    { text: "巧妙吊球，打手出界", scores: { N: 2, I: 1 } },
+                    { text: "精准发球ACE", scores: { J: 2, T: 1 } },
+                    { text: "拦网直接得分", scores: { S: 2, F: 1 } }
+                ]
+            },
+            {
+                text: "训练时你更倾向于：",
+                options: [
+                    { text: "加练力量，增强爆发力", scores: { S: 2, J: 1 } },
+                    { text: "磨练技术，打磨细节", scores: { N: 2, P: 1 } },
+                    { text: "实战对抗，以赛代练", scores: { E: 2, T: 1 } },
+                    { text: "团队配合，跑战术", scores: { F: 2, I: 1 } }
+                ]
+            },
+            {
+                text: "遇到比你高的拦网时，你会：",
+                options: [
+                    { text: "硬碰硬，超手扣球", scores: { E: 2, S: 1 } },
+                    { text: "打线路，避开拦网手", scores: { N: 2, P: 1 } },
+                    { text: "吊球或打手出界", scores: { N: 1, I: 2 } },
+                    { text: "传给队友，重新组织", scores: { F: 2, J: 1 } }
+                ]
+            },
+            {
+                text: "你的发球风格是：",
+                options: [
+                    { text: "跳发重炮，追求ACE", scores: { E: 2, S: 2 } },
+                    { text: "跳飘球，找人找区", scores: { N: 2, J: 1 } },
+                    { text: "上手飘球，稳定落点", scores: { I: 2, J: 2 } },
+                    { text: "侧旋/跳发，变化多端", scores: { P: 2, N: 1 } }
+                ]
+            },
+            {
+                text: "防守时你的第一反应是：",
+                options: [
+                    { text: "鱼跃救球，不惜身体", scores: { E: 2, T: 1 } },
+                    { text: "预判落点，提前移动", scores: { N: 2, J: 1 } },
+                    { text: "稳住重心，保证起球质量", scores: { S: 2, I: 1 } },
+                    { text: "指挥队友，补位防守", scores: { F: 2, E: 1 } }
+                ]
+            },
+            {
+                text: "你理想中自己的球场形象是：",
+                options: [
+                    { text: "全能战士，六边形战士", scores: { J: 2, S: 1 } },
+                    { text: "进攻核心，得分机器", scores: { E: 2, T: 2 } },
+                    { text: "战术大师，球队大脑", scores: { N: 2, F: 1 } },
+                    { text: "关键先生，大心脏", scores: { P: 2, E: 1 } }
+                ]
+            },
+            {
+                text: "比赛前你会：",
+                options: [
+                    { text: "充分热身，制定战术", scores: { J: 2, F: 1 } },
+                    { text: "听听音乐，放松心情", scores: { P: 2, I: 1 } },
+                    { text: "观察对手，分析弱点", scores: { N: 2, T: 1 } },
+                    { text: "和队友聊天，活跃气氛", scores: { E: 2, F: 1 } }
+                ]
+            },
+            {
+                text: "一传不到位时，你作为二传会：",
+                options: [
+                    { text: "强行组织快攻，抢速度", scores: { E: 2, P: 1 } },
+                    { text: "调整传球，给主攻处理", scores: { S: 2, F: 1 } },
+                    { text: "自己处理，二次球进攻", scores: { T: 2, N: 1 } },
+                    { text: "吊球过渡，重新组织", scores: { I: 2, J: 1 } }
+                ]
+            },
+            {
+                text: "你如何看待失误：",
+                options: [
+                    { text: "立即忘记，下一个球", scores: { P: 2, E: 1 } },
+                    { text: "快速复盘，避免再犯", scores: { J: 2, T: 1 } },
+                    { text: "有点懊恼，但会调整", scores: { I: 1, S: 1 } },
+                    { text: "主动担责，鼓励队友", scores: { F: 2, E: 1 } }
+                ]
+            },
+            {
+                text: "在球队中你通常扮演：",
+                options: [
+                    { text: "队长/核心，带领大家", scores: { E: 2, J: 1 } },
+                    { text: "气氛组，活跃团队", scores: { E: 2, P: 1 } },
+                    { text: "技术顾问，分析战术", scores: { N: 2, I: 1 } },
+                    { text: "稳定器，兜底保障", scores: { S: 2, I: 1 } }
+                ]
+            },
+            {
+                text: "如果只能精通一项技术，你会选：",
+                options: [
+                    { text: "扣球/发球（得分手段）", scores: { E: 2, T: 1 } },
+                    { text: "传球/组织（团队核心）", scores: { F: 2, N: 1 } },
+                    { text: "防守/一传（球队基石）", scores: { S: 2, I: 2 } },
+                    { text: "拦网/战术球（智慧型）", scores: { N: 2, J: 1 } }
+                ]
+            }
+        ];
+
+        // 16种VBTI类型定义
+        const types = {
+            'ESTJ': {
+                name: '铁血队长',
+                emoji: '🦁',
+                desc: '你是天生的球场领袖，拥有极强的执行力和统治力。扣球果断，发球凶狠，要求严格。你信奉"实力说话"，是球队的精神支柱和战术执行者。',
+                position: '主攻 / 接应二传',
+                traits: ['暴力美学', '责任心强', '完美主义', '统治力'],
+                stats: { power: 95, tech: 70, defense: 75, leadership: 90 }
+            },
+            'ESFJ': {
+                name: '团队粘合剂',
+                emoji: '🤝',
+                desc: '你是最顾全大局的球员，永远把团队利益放在第一位。善于鼓舞士气，配合意识极佳。你可能不是最耀眼的明星，但没有你，球队就像少了润滑剂。',
+                position: '二传 / 自由人',
+                traits: ['团队至上', '气氛担当', '无私奉献', '情绪稳定'],
+                stats: { power: 60, tech: 85, defense: 80, leadership: 85 }
+            },
+            'ISTJ': {
+                name: '稳健基石',
+                emoji: '🏔️',
+                desc: '你是球队最可靠的底线，一传稳定，防守扎实，从不轻易失误。你不喜欢花哨的动作，信奉"简单有效"的哲学。教练最放心的球员。',
+                position: '自由人 / 主攻',
+                traits: ['稳扎稳打', '极少失误', '自律', '可靠'],
+                stats: { power: 70, tech: 80, defense: 95, leadership: 60 }
+            },
+            'ISFJ': {
+                name: '守护神',
+                emoji: '🛡️',
+                desc: '你默默守护着球队的防线，总是出现在最需要你的位置。鱼跃救球从不犹豫，为了团队甘愿付出。你是那种"哪里需要哪里去"的球员。',
+                position: '自由人 / 副攻',
+                traits: ['牺牲精神', '防守专家', '低调', '坚韧'],
+                stats: { power: 55, tech: 75, defense: 98, leadership: 65 }
+            },
+            'ENTP': {
+                name: '战术鬼才',
+                emoji: '🧙‍♂️',
+                desc: '你的球商极高，总能打出让人意想不到的球路。二次球、时间差、打手出界是你的拿手好戏。对手永远猜不透你的下一个动作。',
+                position: '二传 / 接应',
+                traits: ['创意无限', '变化多端', '机智', '不按套路'],
+                stats: { power: 75, tech: 95, defense: 60, leadership: 70 }
+            },
+            'ENFP': {
+                name: '快乐排球人',
+                emoji: '🌈',
+                desc: '你打排球纯粹是因为热爱，享受每一次触球的快乐。你的热情感染着全队，即使输球也能笑着面对。排球对你来说，首先是快乐，其次才是胜负。',
+                position: '接应 / 副攻',
+                traits: ['热情开朗', '享受过程', '感染力强', '乐观'],
+                stats: { power: 80, tech: 75, defense: 65, leadership: 75 }
+            },
+            'INTP': {
+                name: '冷面分析师',
+                emoji: '🧊',
+                desc: '你在场上冷静得可怕，总在分析对手的站位和习惯。你的扣球线路刁钻，发球找人精准。你是那种"用脑子打球"的典型代表。',
+                position: '副攻 / 主攻',
+                traits: ['冷静理智', '线路刁钻', '观察入微', '独立'],
+                stats: { power: 80, tech: 90, defense: 70, leadership: 55 }
+            },
+            'INFP': {
+                name: '孤胆剑客',
+                emoji: '⚔️',
+                desc: '你有自己独特的打球哲学，不随波逐流。平时安静内敛，但一旦进入状态，爆发出的能量惊人。你的关键球处理能力极强。',
+                position: '接应 / 主攻',
+                traits: ['大心脏', '独特风格', '内敛', '关键时刻爆发'],
+                stats: { power: 85, tech: 80, defense: 60, leadership: 60 }
+            },
+            'ESTP': {
+                name: '场上恶霸',
+                emoji: '🔥',
+                desc: '你拥有野兽般的直觉和反应，扣球不讲道理，防守靠本能。你是那种"球给我，我要一打六"的类型，气场全开，对手看到你都会紧张。',
+                position: '接应 / 主攻',
+                traits: ['侵略性', '本能反应', '自信', '爆发力'],
+                stats: { power: 98, tech: 65, defense: 70, leadership: 75 }
+            },
+            'ESFP': {
+                name: '表演艺术家',
+                emoji: '🎭',
+                desc: '你享受观众的欢呼，每一次得分都是表演。你的动作舒展好看，即使失误也充满戏剧性。你是球场上的明星，聚光灯下的宠儿。',
+                position: '主攻 / 接应',
+                traits: ['表现力强', '动作优美', '外向', '享受关注'],
+                stats: { power: 85, tech: 80, defense: 60, leadership: 70 }
+            },
+            'ISTP': {
+                name: '技术工匠',
+                emoji: '🔧',
+                desc: '你对技术动作有着近乎偏执的追求，扣球手型、传球手指、防守姿势都要完美。你是那种会反复看录像研究动作细节的"球痴"。',
+                position: '副攻 / 二传',
+                traits: ['技术流', '动作标准', '专注', '细节控'],
+                stats: { power: 70, tech: 98, defense: 75, leadership: 50 }
+            },
+            'ISFP': {
+                name: '温柔杀手',
+                emoji: '🌸',
+                desc: '你看起来温和无害，但扣球时突然爆发的力量让人惊讶。你的吊球手感柔和，防守动作优雅。你是那种"温柔一刀"的类型。',
+                position: '主攻 / 副攻',
+                traits: ['外柔内刚', '手感柔和', '审美在线', '低调实力派'],
+                stats: { power: 75, tech: 85, defense: 75, leadership: 55 }
+            },
+            'ENTJ': {
+                name: '球场指挥官',
+                emoji: '👑',
+                desc: '你拥有全局视野和强大的控制欲，不仅自己强，还要带动全队变强。你善于制定战术，调动队友，是教练场上的延伸。',
+                position: '二传 / 主攻',
+                traits: ['战略家', '控制欲', '高效', '目标导向'],
+                stats: { power: 80, tech: 85, defense: 70, leadership: 95 }
+            },
+            'ENFJ': {
+                name: '灵魂导师',
+                emoji: '✨',
+                desc: '你天生具有凝聚团队的魅力，能让每个队友发挥出最好水平。你关注每个人的情绪状态，是球队的心理按摩师和战术核心。',
+                position: '二传 / 自由人',
+                traits: ['感染力', '同理心', '导师气质', '凝聚力'],
+                stats: { power: 65, tech: 85, defense: 75, leadership: 90 }
+            },
+            'INTJ': {
+                name: '终极武器',
+                emoji: '🎯',
+                desc: '你像一把精心打磨的利刃，平时深藏不露，关键时刻一击致命。你对自己的要求极高，训练刻苦，是球队最后的底牌。',
+                position: '接应 / 副攻',
+                traits: ['深不可测', '自律', '精准', '战略储备'],
+                stats: { power: 90, tech: 85, defense: 70, leadership: 65 }
+            },
+            'INFJ': {
+                name: '智者',
+                emoji: '🦉',
+                desc: '你对排球有着超越胜负的理解，追求的是排球运动的本质美感。你善于洞察人心，是球队的精神导师，总能说出最到位的话。',
+                position: '二传 / 自由人',
+                traits: ['通透', '精神领袖', '深度', '哲思'],
+                stats: { power: 60, tech: 90, defense: 80, leadership: 80 }
+            }
+        };
+
+        let currentQuestion = 0;
+        let scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+
+        function startTest() {
+            document.querySelector('.start-screen').classList.remove('active');
+            document.querySelector('.question-screen').classList.add('active');
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const q = questions[currentQuestion];
+            document.getElementById('questionNumber').textContent = `问题 ${currentQuestion + 1}/${questions.length}`;
+            document.getElementById('questionText').textContent = q.text;
+            
+            const progress = ((currentQuestion) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+            
+            q.options.forEach((opt, index) => {
+                const div = document.createElement('div');
+                div.className = 'option';
+                div.textContent = opt.text;
+                div.onclick = () => selectOption(index);
+                container.appendChild(div);
+            });
+        }
+
+        function selectOption(index) {
+            const q = questions[currentQuestion];
+            const selected = q.options[index];
+            
+            // 计分
+            for (let key in selected.scores) {
+                scores[key] += selected.scores[key];
+            }
+
+            // 动画效果
+            const options = document.querySelectorAll('.option');
+            options[index].classList.add('selected');
+            
+            setTimeout(() => {
+                currentQuestion++;
+                if (currentQuestion < questions.length) {
+                    const screen = document.querySelector('.question-screen');
+                    screen.classList.add('fade-out');
+                    setTimeout(() => {
+                        screen.classList.remove('fade-out');
+                        showQuestion();
+                    }, 300);
+                } else {
+                    showResult();
+                }
+            }, 400);
+        }
+
+        function calculateType() {
+            let type = '';
+            type += scores.E >= scores.I ? 'E' : 'I';
+            type += scores.S >= scores.N ? 'S' : 'N';
+            type += scores.T >= scores.F ? 'T' : 'F';
+            type += scores.J >= scores.P ? 'J' : 'P';
+            return type;
+        }
+
+        function showResult() {
+            document.querySelector('.question-screen').classList.remove('active');
+            document.querySelector('.result-screen').classList.add('active');
+            
+            const type = calculateType();
+            const result = types[type];
+            
+            document.getElementById('resultEmoji').textContent = result.emoji;
+            document.getElementById('resultType').textContent = type;
+            document.getElementById('resultName').textContent = result.name;
+            document.getElementById('resultDesc').textContent = result.desc;
+            document.getElementById('courtPosition').textContent = `🏐 最佳位置：${result.position}`;
+            
+            const traitsContainer = document.getElementById('traits');
+            traitsContainer.innerHTML = '';
+            result.traits.forEach(trait => {
+                const span = document.createElement('span');
+                span.className = 'trait';
+                span.textContent = trait;
+                traitsContainer.appendChild(span);
+            });
+
+            const statsContainer = document.getElementById('stats');
+            statsContainer.innerHTML = '';
+            const statLabels = { power: '力量', tech: '技术', defense: '防守', leadership: '领导力' };
+            for (let key in result.stats) {
+                const div = document.createElement('div');
+                div.className = 'stat-item';
+                div.innerHTML = `
+                    <div class="stat-label">${statLabels[key]}</div>
+                    <div class="stat-value">${result.stats[key]}</div>
+                `;
+                statsContainer.appendChild(div);
+            }
+        }
+
+        function restartTest() {
+            currentQuestion = 0;
+            scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+            document.querySelector('.result-screen').classList.remove('active');
+            document.querySelector('.start-screen').classList.add('active');
+        }
+
+        function shareResult() {
+            const type = document.getElementById('resultType').textContent;
+            const name = document.getElementById('resultName').textContent;
+            const text = `我的VBTI排球人格是【${type} - ${name}】🏐 快来测测你的球场真实身份！`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'VBTI 排球人性格测试',
+                    text: text,
+                    url: window.location.href
+                }).catch(err => console.log('分享失败', err));
+            } else {
+                // 复制到剪贴板
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('结果已复制到剪贴板！');
+                }).catch(() => {
+                    alert(text);
+                });
+            }
+        }
+    </script>
+</body>
+</html>
